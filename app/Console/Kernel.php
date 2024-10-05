@@ -4,6 +4,9 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
+use App\Models\Voucher;
+use Carbon\Carbon;
 
 class Kernel extends ConsoleKernel
 {
@@ -12,7 +15,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        $schedule->call(function () {
+            $now = Carbon::now();
+            Voucher::where('start_at', '<=', $now)
+               ->where('expires_at', '>=', $now)
+               ->update(['is_active' => true]);
+        })->everyMinute();
+         
     }
 
     /**
